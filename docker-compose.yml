@@ -38,19 +38,18 @@ services:
       PHOTOPRISM_DATABASE_DRIVER: "tidb" # Change to "mysql" for external MySQL or MariaDB
       PHOTOPRISM_DATABASE_DSN: "root:photoprism@tcp(localhost:2343)/photoprism?parseTime=true"
       PHOTOPRISM_ORIGINALS_LIMIT: 9999999
+      PHOTOPRISM_THUMB_UNCACHED: "true"
       # PHOTOPRISM_DATABASE_DRIVER: "mysql" # Using MariaDB or MySQL instead of the internal TiDB is optional
       # PHOTOPRISM_DATABASE_DSN: "photoprism:photoprism@tcp(photoprism-db:3306)/photoprism?parseTime=true"
       # PHOTOPRISM_THUMB_QUALITY: 95 # High-quality thumbnails (optional, default JPEG quality is 90)
       # PHOTOPRISM_THUMB_SIZE: 3840 # For retina screens, default is 2048
       # PHOTOPRISM_THUMB_FILTER: "lanczos" # Resample filter, best to worst: blackman, lanczos, cubic, linear
     volumes:
-      #- "/mnt/camera/:/photoprism/originals/Camera" # [local path]:[container path]
-      #- "/docker/photoprism/import:/photoprism/import" # [local path]:[container path] (optional)
-      - "photoprism-config:/photoprism/config" # keep settings
-      - "photoprism-cache:/photoprism/cache" # keep thumbnail cache
-      - "photoprism-database:/photoprism/database" # TiDB database files, remove if you use MariaDB or MySQL
-      - "photoprism-storage:/photoprism/storage"
-      - "photoprism_photos:/photoprism/originals"
+      - "config:/photoprism/storage/config" # keep settings
+      - "cache:/photoprism/storage/cache" # keep thumbnail cache
+      - "database:/photoprism/database" # TiDB database files, remove if you use MariaDB or MySQL
+      #- "storage:/photoprism/storage"
+      - "photos:/photoprism/originals"
 
   # photoprism-db: # Uncomment, if you want to use MariaDB instead of the internal TiDB
   #  image: mariadb:10.5 # Alternatively mysql:8.0
@@ -65,17 +64,17 @@ services:
   #    MYSQL_DATABASE: photoprism
 
 volumes:
-  photoprism-config:
+  config:
     driver: local
-  photoprism-cache:
+  cache:
     driver: local
-  photoprism-database:
+  database:
     driver: local
-  photoprism-storage: # config and thumbnails
-    driver: local
-  photoprism_photos:
+#  storage: # config and thumbnails
+#    driver: local
+  photos:
     driver: local
     driver_opts:
       type: cifs
       o: ${CIFS_OPTS}
-      device: "//10.0.0.20/hdd/Camera"
+      device: "//10.0.0.20/hdd/camera"
